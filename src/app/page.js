@@ -15,8 +15,18 @@ export default function Home() {
     "function getOwner() external view returns (address)",
     "function getFunds() public payable",
   ];
-
   const provider = new ethers.BrowserProvider(window.ethereum);
+
+  const checkContractBalance = async () => {
+    try {
+      const balance = await provider.getBalance(contractAddress);
+      setContractBalance(ethers.formatEther(balance)); // Convert from wei to ETH
+      console.log("Contract Balance:", ethers.formatEther(balance));
+    } catch (error) {
+      console.error("Error fetching contract balance:", error);
+      alert("Failed to fetch contract balance.");
+    }
+  };
 
   const connectWallet = async () => {
     try {
@@ -24,6 +34,11 @@ export default function Home() {
         const [selectedAccount] = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
+
+        if (!selectedAccount) {
+          throw new Error("No account returned. Please try again.");
+        }
+
         setAccount(selectedAccount);
         console.log("Connected account:", selectedAccount);
       } else {
@@ -31,15 +46,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error connecting wallet:", error);
-    }
-  };
-
-  const checkContractBalance = async () => {
-    try {
-      const balance = await provider.getBalance(contractAddress);
-      setContractBalance(ethers.formatEther(balance)); // Convert from wei to ETH
-    } catch (error) {
-      console.error("Error fetching contract balance:", error);
     }
   };
 
@@ -69,67 +75,103 @@ export default function Home() {
 
   const withdrawFunds = async () => {
     try {
-      const signer = provider.getSigner();
+      if (typeof window.ethereum === "undefined") {
+        throw new Error("MetaMask is not installed");
+      }
+
+      // Get the signer
+      const signer = await provider.getSigner();
+      if (!signer) {
+        throw new Error("No signer found. Please connect your wallet.");
+      }
+
+      // Ensure the signer has an address property
+      const connectedAccount = await signer.getAddress();
+      if (!connectedAccount) {
+        throw new Error("Unable to fetch connected account. Please reconnect.");
+      }
+      console.log("Connected Account:", connectedAccount);
+
+      // Load contract with signer
       const contract = new ethers.Contract(contractAddress, abi, signer);
 
-      // Use provider for read-only calls
+      // Use provider to check owner
       const owner = await contract.connect(provider).getOwner();
       console.log("Contract Owner:", owner);
 
-      const connectedAccount = await signer.address;
-      console.log("Connected Account:", connectedAccount);
-
-      if (connectedAccount !== owner) {
-        throw new Error("You are not the owner!");
+      if (connectedAccount.toLowerCase() !== owner.toLowerCase()) {
+        throw new Error("You are not the contract owner!");
       }
 
-      // Use signer for state-changing calls
+      // Call withdraw function
       const tx = await contract.withdraw();
       console.log("Withdraw transaction sent:", tx.hash);
       await tx.wait();
       console.log("Withdraw transaction confirmed!");
     } catch (error) {
-      console.error("Error during withdrawal:", error);
+      console.error("Error during withdrawal:", error.message);
+      alert(error.message);
     }
   };
 
   return (
-    <>
-      <h1> Fund Leticia</h1>
-      <h3>Contract interaction</h3>
-      <button onClick={connectWallet}>Connect Wallet</button>
-      {account && <p>Connected Wallet: {account}</p>}
-      <div style={{ marginTop: "20px" }}>
-        <input
-          type="text"
-          placeholder="Enter amount in ETH"
-          value={ethAmount}
-          onChange={(e) => setEthAmount(e.target.value)}
-          style={{ padding: "10px", marginRight: "10px" }}
-        />
-        <button onClick={fundContract} style={{ padding: "10px 20px" }}>
-          Fund Contract
+    <div className="bg-pattern bg-cover bg-center h-screen opacity-70 flex flex-col items-center justify-center text-white">
+      {/* Connect Wallet Button positioned at the top-left */}
+      <div className="absolute top-5 left-5">
+        <button
+          onClick={connectWallet}
+          className="bg-white text-black font-semibold py-2 px-4 rounded shadow-lg hover:bg-gray-200 transition"
+        >
+          Connect Wallet
         </button>
       </div>
 
-      <button onClick={checkContractBalance}>Contract Balance</button>
+      {/* Centered Content */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Fund Leticia</h1>
+        <h3 className="text-xl mb-6">Contract Interaction</h3>
 
-      {contractBalance && (
-        <div style={{ marginTop: "20px" }}>
-          <p>Contract Balance: {contractBalance} ETH</p>
+        {account ? (
+          <p className="mb-6 text-lg">Connected Wallet: {account}</p>
+        ) : (
+          <p className="mb-6 text-lg">Please connect your wallet</p>
+        )}
+
+        <div className="mt-4">
+          <input
+            type="text"
+            placeholder="Enter amount in ETH"
+            value={ethAmount}
+            onChange={(e) => setEthAmount(e.target.value)}
+            className="py-2 px-4 rounded-lg border border-gray-300 text-black mr-4"
+          />
           <button
-            onClick={withdrawFunds}
-            style={{
-              padding: "10px 20px",
-              marginTop: "10px",
-              backgroundColor: "green",
-              color: "white",
-            }}
+            onClick={fundContract}
+            className="bg-green-500 text-white py-2 px-6 rounded-lg shadow-md hover:bg-green-600 transition"
           >
-            Withdraw Funds
+            Fund Contract
           </button>
         </div>
-      )}
-    </>
+
+        <button
+          onClick={checkContractBalance}
+          className="mt-6 bg-blue-500 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-600 transition"
+        >
+          Check Contract Balance
+        </button>
+
+        {contractBalance && (
+          <div className="mt-6">
+            <p className="text-lg">Contract Balance: {contractBalance} ETH</p>
+            <button
+              onClick={withdrawFunds}
+              className="mt-4 bg-red-500 text-white py-2 px-6 rounded-lg shadow-md hover:bg-red-600 transition"
+            >
+              Withdraw Funds
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
