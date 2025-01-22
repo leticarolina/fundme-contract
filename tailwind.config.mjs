@@ -14,6 +14,9 @@ export default {
       backgroundImage: {
         pattern: "url('/images/backg.jpeg')",
       },
+      fontFamily: {
+        sans: ["Poppins", "Inter", "sans-serif"],
+      },
     },
   },
   plugins: [],

@@ -117,25 +117,41 @@ export default function Home() {
   return (
     <div className="bg-pattern bg-cover bg-center h-screen opacity-70 flex flex-col items-center justify-center text-white">
       {/* Connect Wallet Button positioned at the top-left */}
-      <div className="absolute top-5 left-5">
-        <button
-          onClick={connectWallet}
-          className="bg-white text-black font-semibold py-2 px-4 rounded shadow-lg hover:bg-gray-200 transition"
-        >
-          Connect Wallet
-        </button>
+      <div className="absolute top-5 right-5">
+        {account ? (
+          <button className="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-green-600 transition">
+            Connected
+          </button>
+        ) : (
+          <button
+            onClick={connectWallet}
+            className="bg-white text-black font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-gray-200 transition"
+          >
+            Connect Wallet
+          </button>
+        )}
       </div>
 
       {/* Centered Content */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Fund Leticia</h1>
-        <h3 className="text-xl mb-6">Contract Interaction</h3>
+        <h1 className="text-4xl font-bold font-sans text-white">
+          Leti's Funding Portal
+        </h1>
 
-        {account ? (
-          <p className="mb-6 text-lg">Connected Wallet: {account}</p>
-        ) : (
-          <p className="mb-6 text-lg">Please connect your wallet</p>
-        )}
+        <h3 className="text-xl mb-6">Smart Contract Interaction</h3>
+
+        <div className="mt-6 p-4 bg-white/20 backdrop-blur-lg rounded-sm shadow-md text-center text-lg font-medium text-white max-w-lg mx-auto">
+          {account ? (
+            <p className="truncate">
+              Connected Wallet:{" "}
+              <span className="font-bold text-green-300">{account}</span>
+            </p>
+          ) : (
+            <p className="text-red-500 font-semibold text-lg">
+              No wallet connected.
+            </p>
+          )}
+        </div>
 
         <div className="mt-4">
           <input
@@ -149,13 +165,14 @@ export default function Home() {
             onClick={fundContract}
             className="bg-green-500 text-white py-2 px-6 rounded-lg shadow-md hover:bg-green-600 transition"
           >
-            Fund Contract
+            Contribute Now
           </button>
         </div>
 
         <button
           onClick={checkContractBalance}
-          className="mt-6 bg-blue-500 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-600 transition"
+          className="mt-6 bg-purple-600/70 text-white py-2 px-6 rounded-lg shadow-md 
+  hover:bg-purple-400/80 transition"
         >
           Check Contract Balance
         </button>
