@@ -109,7 +109,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-pattern bg-cover bg-center flex flex-col items-center justify-center text-white px-4 md:px-0">
+    <div className="min-h-screen bg-pattern bg-cover bg-center flex flex-col items-center justify-center text-white px-4 md:px-0 overflow-hidden">
       {/* Connect Wallet Button Positioned at the Top-Right */}
       <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full">
         {account ? (
@@ -127,7 +127,7 @@ export default function Home() {
       </div>
 
       {/* Title Section */}
-      <h1 className="text-5xl font-bold mb-8 mt-8 text-white text-center">
+      <h1 className="text-5xl font-bold mb-8 mt-20 md:mt-8 text-white text-center z-10">
         <a
           href="https://github.com/yourgithubusername"
           target="_blank"
@@ -137,10 +137,6 @@ export default function Home() {
         </a>{" "}
         Funding Portal
       </h1>
-      <p className="text-lg text-gray-300 font-semibold text-center mb-8">
-        Please use <span className="text-green-400">Sepolia Testnet</span> to
-        interact with this contract.
-      </p>
 
       {/* Wallet Info & Input Section */}
       <div className=" p-4 bg-white/30 backdrop-blur-lg rounded-sm shadow-md text-center text-xl font-medium text-white max-w-lg mx-auto">
@@ -177,7 +173,7 @@ export default function Home() {
 
       {/* Show minimum contribution message*/}
       {showMinContribution && (
-        <p className="text-red-500 text-sm mt-2 font-semibold">
+        <p className="text-red-500 text-sm mt-2 font-semibold ">
           * Minimum contribution: 5 USD worth of ETH.
         </p>
       )}
