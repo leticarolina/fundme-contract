@@ -1,6 +1,6 @@
 "use client";
 import { ethers } from "ethers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [account, setAccount] = useState(null);
@@ -17,17 +17,27 @@ export default function Home() {
   ];
 
   //provider kind of a bridge that connects website to the Ethereum blockchain
-  const provider = new ethers.BrowserProvider(window.ethereum);
+  const [provider, setProvider] = useState(null); // State to hold the provider
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.ethereum) {
+      setProvider(new ethers.BrowserProvider(window.ethereum));
+    }
+  }, []);
 
   const checkContractBalance = async () => {
     try {
+      if (!provider) {
+        alert("Please install wallet extension!");
+        return;
+      }
       const balance = await provider.getBalance(contractAddress);
       const formattedBalance = parseFloat(ethers.formatEther(balance)).toFixed(
         5
       );
       setContractBalance(formattedBalance);
     } catch (error) {
-      alert("Error fetching contract balance");
+      console.error("Error fetching contract balance:", error);
     }
   };
 
