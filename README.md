@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🌐 Leti's Funding Portal
 
-## Getting Started
+**Leti's FundMe Portal** is a decentralized application (dApp) built using Solidity and React (Next.js) that allows users to fund a smart contract deployed on the Ethereum **Sepolia Testnet**, and only the owner can withdraw funds securely.
 
-First, run the development server:
+## 💻 Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🔗 [Visit the Deployed DApp](https://fundme-contract.vercel.app/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## **Desktop View**
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+![Desktop Version](/public/images/web.png)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## **Mobile View**
 
-## Learn More
+![Mobile Version](/public/images/mobile.png)
 
-To learn more about Next.js, take a look at the following resources:
+## ⚠️ Important Notice
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**This dApp is deployed on the Ethereum Sepolia Testnet.**  
+Ensure you have selected the Sepolia network in your wallet to interact with the contract successfully.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔍 How to Use
 
-## Deploy on Vercel
+1. **Connect Wallet:** Click "Connect Wallet" to link your Wallet via extension.
+2. **Send Funds:** Enter a faucet amount in ETH and click "Send Funds".
+3. **Check Balance:** Click "Check Contract Balance" to view contract funds.
+4. **Withdraw Funds:** Only the contract owner can withdraw ETH.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📜 Smart Contract Details
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Contract Address:** `0x933b20396aa6214a5795cdb0b13aef7c4cf160bb`
+- **Network:** Sepolia Testnet
+- **Languages Used:** Solidity, JavaScript (React)
+- **Framework:** Next.js, Tailwind CSS
+- **Provider:** ethers.js
+
+### Prerequisites
+
+- **MetaMask** browser extension
+
+### 🤝 Contribution
+
+Contributions are welcome! If you find any issues, feel free to open an [issue](https://github.com/YOUR_GITHUB_USERNAME/FUNDME_PROJECT/issues) or submit a pull request.

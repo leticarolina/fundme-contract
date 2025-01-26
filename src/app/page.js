@@ -137,9 +137,12 @@ export default function Home() {
         </a>{" "}
         Funding Portal
       </h1>
-
+      <p className="text-lg text-gray-300 font-semibold text-center mb-8">
+        Please use <span className="text-green-400">Sepolia Testnet</span> to
+        interact with this contract.
+      </p>
       {/* Wallet Info & Input Section */}
-      <div className=" p-4 bg-white/30 backdrop-blur-lg rounded-sm shadow-md text-center text-xl font-medium text-white max-w-lg mx-auto">
+      <div className=" p-4 bg-white/30 backdrop-blur-lg rounded-sm shadow-md text-center text-xl font-medium text-white max-w-lg mx-auto mb-6">
         {account ? (
           <p className="flex items-center justify-center">
             Connected Wallet:{" "}
