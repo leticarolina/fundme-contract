@@ -5,7 +5,7 @@ pragma solidity ^0.8.18;
 import {Test, console} from "forge-std/Test.sol"; //to use forge script?
 import {FundMe} from "../../src/fund-me.sol"; //the originsl contract
 import {FundMeScript} from "../../script/FundMe.s.sol"; //the deploy version
-import {GetFundsFundMe, WithdrawFundMe} from "../../script/Integrations.s.sol";
+import {FundFundMe, WithdrawFundMe} from "../../script/Integrations.s.sol";
 
 contract IntegrationTest is Test {
     FundMe public fundMe;
@@ -29,7 +29,7 @@ contract IntegrationTest is Test {
         uint256 preOwnerBalance = address(fundMe.getOwner()).balance; //The balance of the contract owner before the transaction.
 
         vm.prank(USER);
-        fundMe.getFunds{value: ONE_ETH}();
+        fundMe.fund{value: ONE_ETH}();
 
         WithdrawFundMe withdrawFundMe = new WithdrawFundMe();
         withdrawFundMe.withdrawFundMe(address(fundMe));

@@ -38,9 +38,7 @@ contract HelperConfig is Script {
     }
 
     function getMainnetEthConfig() public pure returns (NetworkConfig memory) {
-        NetworkConfig memory mainnetConfig = NetworkConfig({
-            priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
-        });
+        NetworkConfig memory mainnetConfig = NetworkConfig({priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419});
         return mainnetConfig;
     }
 
@@ -64,21 +62,16 @@ contract HelperConfig is Script {
             return activeNetworkConfig;
         }
 
-        vm.startBroadcast(config.account);
+        vm.startBroadcast();
         // Deploy a new MockV3Aggregator contract (a fake price feed for testing purposes)
         // DECIMALS: Number of decimals the mock price feed supports
         // INITIAL_PRICE: The initial price value for the mock price feed
-        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(
-            DECIMALS,
-            INITIAL_PRICE
-        );
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
         vm.stopBroadcast();
 
         // Create a new NetworkConfig struct for the Anvil network
 
-        NetworkConfig memory anvilConfig = NetworkConfig({
-            priceFeed: address(mockPriceFeed)
-        });
+        NetworkConfig memory anvilConfig = NetworkConfig({priceFeed: address(mockPriceFeed)});
         // Return the newly created Anvil network configuration
         return anvilConfig;
     }

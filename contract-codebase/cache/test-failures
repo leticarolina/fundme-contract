@@ -1,1 +1,1 @@
-test_RevertIf_WithoutEnoughEth
+test_Withdraw_Reverts_WhenNoFunds
