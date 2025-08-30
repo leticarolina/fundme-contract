@@ -6,14 +6,15 @@ import {FundMe} from "../src/fund-me.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract FundMeScript is Script {
-    HelperConfig helperConfig = new HelperConfig();
-    address ethUsdPriceFeed = helperConfig.activeNetworkConfig();
 
     function run() external returns (FundMe) {
+        HelperConfig helperConfig = new HelperConfig();
+        address ethUsdPriceFeed = helperConfig.activeNetworkConfig();
+
+        
         vm.startBroadcast();
         FundMe deployedFundMe = new FundMe(ethUsdPriceFeed);
         vm.stopBroadcast();
         return deployedFundMe;
     }
-    // return FundMe;
 }

@@ -13,7 +13,9 @@ export default function Home() {
   const [mmLinkFullURL, setMmLinkFullURL] = useState(null);
 
   // ---- contract info ----
-  const contractAddress = "0xe5B77f2B20B86B36D1E502F256B121F592Be6dEe";
+  // const contractAddress = "0xe5B77f2B20B86B36D1E502F256B121F592Be6dEe"; /SEPOLIA
+  const contractAddress = "0x3d821dbb71cea84cf163d68bbfb56ceb7833fb4c"; //Deployed on Mainnet Arbitrum
+
   const abi = [
     "event Funded(address indexed funder, uint256 amount)",
     "function withdraw() public",
@@ -23,10 +25,12 @@ export default function Home() {
 
   // ---- providers ----
   // Read-only provider pinned to Sepolia -> works even if no wallet / wrong wallet network
-  const SEPOLIA_RPC =
-    "https://eth-sepolia.g.alchemy.com/v2/2ef7uiLLqGeZqzXmhWIPu";
+  // const SEPOLIA_RPC =
+  //   "https://eth-sepolia.g.alchemy.com/v2/2ef7uiLLqGeZqzXmhWIPu";
+  const ARBITRUM_RPC =
+    "https://arb-mainnet.g.alchemy.com/v2/ieHx4eyZSvF-d6miPz3yoDdw_B5tBTiv";
   const readProvider = useMemo(
-    () => new ethers.JsonRpcProvider(SEPOLIA_RPC),
+    () => new ethers.JsonRpcProvider(ARBITRUM_RPC),
     []
   );
   const [provider, setProvider] = useState(null); // wallet provider (for writes)
@@ -62,7 +66,8 @@ export default function Home() {
   }, []);
 
   // ---- helpers ----
-  const REQUIRED_CHAIN_ID = 11155111n; // Sepolia
+  // const REQUIRED_CHAIN_ID = 11155111n; // Sepolia
+  const REQUIRED_CHAIN_ID = 42161n; // Arbitrum One
 
   const refreshBalance = async () => {
     try {
@@ -79,10 +84,10 @@ export default function Home() {
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0xaa36a7" }], // Sepolia
+          params: [{ chainId: "0xa4b1" }], //(Arbitrum One mainnet)
         });
       } catch {
-        alert("Please switch your wallet to Sepolia.");
+        alert("Please switch your wallet to Arbitrum One");
         throw new Error("Wrong network");
       }
     }
@@ -94,11 +99,6 @@ export default function Home() {
   // ---- initial load + live updates ----
   useEffect(() => {
     (async () => {
-      // sanity log (optional)
-      try {
-        const net = await readProvider.getNetwork();
-        const code = await readProvider.getCode(contractAddress);
-      } catch {}
       await refreshBalance();
     })();
 
@@ -118,22 +118,6 @@ export default function Home() {
   }, [contractRead, readProvider, contractAddress]);
 
   // ---- actions ----
-  // const connectWallet = async () => {
-  //   if (!window?.ethereum) {
-  //     // Lightweight mobile deeplink to MetaMask
-  //     // const dappURL = encodeURIComponent(window.location.href);
-  //     // window.location.href = `https://metamask.app.link/dapp/${dappURL}`;
-  //     const host = window.location.host; // e.g. myapp.vercel.app
-  //     const path = window.location.pathname + window.location.search; // keep route/query
-  //     window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
-
-  //     return;
-  //   }
-  //   const p = new ethers.BrowserProvider(window.ethereum);
-  //   const [selectedAccount] = await p.send("eth_requestAccounts", []);
-  //   setProvider(p);
-  //   setAccount(selectedAccount);
-  // };
 
   const connectWallet = async () => {
     if (typeof window === "undefined") return;
@@ -226,9 +210,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#483460] bg-cover bg-center flex flex-col items-center justify-center text-white px-4 md:px-0 overflow-hidden">
+    <div className="min-h-screen bg-[#483460] bg-cover bg-center flex flex-col items-center justify-center text-[#EEEAF6] px-4 md:px-0 overflow-hidden">
       {/* Connect Wallet Button Positioned at the Top-Right */}
-      <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full">
+      <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full gap-4">
         {account ? (
           <button className="bg-[#00B354] text-white font-semibold py-3 px-6 rounded-md shadow-lg hover:bg-green-600 transition">
             {account.slice(0, 10)}...{account.slice(-8)}
@@ -238,18 +222,18 @@ export default function Home() {
             onClick={connectWallet}
             className="bg-white/20 text-white font-semibold py-3 px-6 rounded-md shadow-lg backdrop-blur-md hover:bg-white/30 transition"
           >
-            Connect Wallet
+            Connect Metamask
           </button>
         )}
-        {mmLinkDomainOnly && (
-          <a href={mmLinkDomainOnly} className="underline">
-            Open in MetaMask
-          </a>
+        {mmLinkDomainOnly && /Mobi|Android/i.test(navigator.userAgent) && (
+          <button className="bg-white/20 text-white font-semibold py-3 px-6 rounded-md shadow-lg backdrop-blur-md hover:bg-white/30 transition">
+            <a href={mmLinkDomainOnly}>Open in MetaMask</a>
+          </button>
         )}
       </div>
 
       {/* Title Section */}
-      <h1 className="text-5xl font-bold mb-8 mt-24 md:mt-8 text-[#EEEAF6] text-center z-10">
+      <h1 className="text-5xl font-bold mb-8 mt-28 md:mt-8 text-[#EEEAF6] text-center z-10">
         <a
           href="https://github.com/yourgithubusername"
           target="_blank"
@@ -265,9 +249,21 @@ export default function Home() {
         If you’d like to try it out and support my work, it's possible directly
         through this <span className="font-semibold">dApp.</span>
       </p>
-      <p className="text-lg text-gray-300 font-semibold text-center mb-4">
+      {/* <p className="text-lg text-gray-300 font-semibold text-center mb-4">
         Use <span className="text-green-600">Arbitrum Blockchain</span> to
         interact
+      </p> */}
+      <p className="text-lg text-gray-300 font-semibold text-center mb-4">
+        Please use <span className="text-[#52A9ED]">Arbitrum One</span> to
+        interact,&nbsp;
+        <a
+          href={`https://arbiscan.io/address/${contractAddress}`}
+          target="_blank"
+          rel="noreferrer"
+          className="underline text-[#52A9ED] hover:text-[#3982BC]"
+        >
+          check contract
+        </a>
       </p>
 
       {/* Input Section */}

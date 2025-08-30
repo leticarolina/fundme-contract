@@ -49,7 +49,7 @@ contract FundMeTest is Test {
         //This line simulates someone funding the FundMe contract with 1 ETH (in wei).
         fundMe.fund{value: ONE_ETH}();
         //Calls the getAddressToAmountToAmountSent function to check how much ETH the current contract (test contract) has sent to fundMe.
-        uint256 amountFunded = fundMe.getAddressToAmountToAmountSent(address(USER));
+        uint256 amountFunded = fundMe.getAddressToAmountSent(address(USER));
         //Using Foundry’s assertEq function to verify that the amountFunded matches 1e18 (1 ETH).
         assertEq(amountFunded, ONE_ETH);
     }
@@ -129,7 +129,7 @@ contract FundMeTest is Test {
         fundMe.withdraw();
 
         // mapping reset
-        assertEq(fundMe.getAddressToAmountToAmountSent(USER), 0);
+        assertEq(fundMe.getAddressToAmountSent(USER), 0);
         // array cleared
         assertEq(fundMe.getFundersCount(), 0);
         // balance drained
@@ -152,7 +152,7 @@ contract FundMeTest is Test {
         vm.prank(USER);
         (bool ok,) = address(fundMe).call{value: 1 ether}("");
         assertTrue(ok);
-        assertEq(fundMe.getAddressToAmountToAmountSent(USER), 1 ether);
+        assertEq(fundMe.getAddressToAmountSent(USER), 1 ether);
     }
 
     /// fallback: non-empty data -> should fund
@@ -160,7 +160,7 @@ contract FundMeTest is Test {
         vm.prank(USER);
         (bool ok,) = address(fundMe).call{value: 1 ether}(hex"01");
         assertTrue(ok);
-        assertEq(fundMe.getAddressToAmountToAmountSent(USER), 1 ether);
+        assertEq(fundMe.getAddressToAmountSent(USER), 1 ether);
     }
 
     //////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ contract FundMeTest is Test {
         (bool ok,) = address(fundMe).call{value: ONE_ETH}(""); // routes to receive() -> getFunds()
         assertTrue(ok);
 
-        assertEq(fundMe.getAddressToAmountToAmountSent(USER), ONE_ETH);
+        assertEq(fundMe.getAddressToAmountSent(USER), ONE_ETH);
     }
 
 

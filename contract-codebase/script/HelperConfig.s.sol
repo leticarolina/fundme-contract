@@ -31,7 +31,12 @@ contract HelperConfig is Script {
         else if (block.chainid == 11155111) {
             // If the chain ID is Sepolia, call the `getSepoliaEthConfig` function to get Sepolia's configuration.
             activeNetworkConfig = getSepoliaEthConfig();
-        } else {
+        } else if (block.chainid == 42161){
+            activeNetworkConfig = getArbitrumEthConfig();
+        } else if (block.chainid == 421614 ) {
+            activeNetworkConfig = getSepoliaArbitrumEthConfig();
+        }
+        else {
             // If it's not Sepolia, assume we are running on a local Anvil network.
             activeNetworkConfig = GetOrCreateAnvilEthConfig();
         }
@@ -42,6 +47,19 @@ contract HelperConfig is Script {
         return mainnetConfig;
     }
 
+    function getArbitrumEthConfig() public pure returns (NetworkConfig memory) {
+        return NetworkConfig({
+            priceFeed: 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612 // Arbitrum One ETH/USD
+        });
+    }
+
+
+     function getSepoliaArbitrumEthConfig() public pure returns (NetworkConfig memory) {
+        return NetworkConfig({
+            priceFeed: 0xd30e2101a97dcbAeBCBC04F14C3f624E67A35165 // sEPOLIA Arbitrum One ETH/USD
+        });
+    }
+    
     // Function to return the configuration specific to the Sepolia testnet.
     // It's declared `pure` because it doesn't modify the state or read state variables.
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
@@ -54,7 +72,7 @@ contract HelperConfig is Script {
         //then returning a fully formed NetworkConfig struct instance.
         return sepoliaConfig;
     }
-
+    
     function GetOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         // Check for Existing Configuration: if a configuration already exists (priceFeed is not the zero address)
         if (activeNetworkConfig.priceFeed != address(0)) {
