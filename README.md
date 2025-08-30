@@ -1,6 +1,6 @@
 # 🌐 Leti's Funding Portal
 
-**Leti's FundMe Portal** is a decentralized application (dApp) built using Solidity and React (Next.js) that allows users to fund a smart contract deployed on the Ethereum **Sepolia Testnet**, and only the owner can withdraw funds securely.
+**Leti's FundMe Portal** is a decentralized application (dApp) built using Solidity and React (Next.js) that allows users to fund my smart contract deployed on the **Arbitrum One**, and only the owner (me) can withdraw funds securely.
 
 ## 💻 Live Demo
 
@@ -8,19 +8,21 @@
 
 ## **Desktop View**
 
-![Desktop Version](/public/images/web.png)
+![Desktop Version](/public/images/webv2.png)
 
 ## ⚠️ Important Notice
 
-**This dApp is deployed on the Ethereum Sepolia Testnet.**  
-Ensure you have selected the Sepolia network in your wallet to interact with the contract successfully.
+**This dApp is deployed on the Arbitrum One Mainnet.**  
+Ensure you have selected the Arbitrum network in your wallet to interact with the contract successfully.
 
-🔗 [View Contract on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x933b20396aa6214a5795cdb0b13aef7c4cf160bb)
+🔗 [View Contract on Arbitrum Mainnet](https://arbiscan.io/address/0x3d821dbb71cea84cf163d68bbfb56ceb7833fb4c)
+
+🔗 [Testnet version on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x933b20396aa6214a5795cdb0b13aef7c4cf160bb)
 
 ## 📜 Smart Contract Details
 
-- **Contract Address:** `0x933b20396aa6214a5795cdb0b13aef7c4cf160bb`
-- **Network:** Sepolia Testnet
+- **Contract Address:** `0x3d821dbb71cea84cf163d68bbfb56ceb7833fb4c`
+- **Network:** Sepolia Testnet & Arbitrum One
 - **Languages Used:** Solidity, JavaScript (React)
 - **Framework:** Next.js, Tailwind CSS
 - **Provider:** ethers.js
@@ -35,7 +37,7 @@ Ensure you have selected the Sepolia network in your wallet to interact with the
 
 ### Prerequisites
 
-- **Wallet** browser extension
+- **Wallet** browser extension or Metamask App
 
 ### 🤝 Contribution
 
