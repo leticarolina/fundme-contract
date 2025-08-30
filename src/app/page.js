@@ -9,6 +9,8 @@ export default function Home() {
   const [ethAmount, setEthAmount] = useState("");
   const [showWindow, setShowWindow] = useState(false);
   const [showMinContribution, setShowMinContribution] = useState(false);
+  const [mmLinkDomainOnly, setMmLinkDomainOnly] = useState(null);
+  const [mmLinkFullURL, setMmLinkFullURL] = useState(null);
 
   // ---- contract info ----
   const contractAddress = "0xe5B77f2B20B86B36D1E502F256B121F592Be6dEe";
@@ -45,6 +47,18 @@ export default function Home() {
       );
       window.ethereum.on?.("chainChanged", () => window.location.reload());
     }
+  }, []);
+  //metamask link
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const host = window.location.host; // fundme-contract.vercel.app
+    const path = window.location.pathname + window.location.search; // keep route/query
+    setMmLinkDomainOnly(`https://metamask.app.link/dapp/${host}${path}`);
+    setMmLinkFullURL(
+      `https://metamask.app.link/dapp/${encodeURIComponent(
+        window.location.href
+      )}`
+    );
   }, []);
 
   // ---- helpers ----
@@ -104,17 +118,51 @@ export default function Home() {
   }, [contractRead, readProvider, contractAddress]);
 
   // ---- actions ----
+  // const connectWallet = async () => {
+  //   if (!window?.ethereum) {
+  //     // Lightweight mobile deeplink to MetaMask
+  //     // const dappURL = encodeURIComponent(window.location.href);
+  //     // window.location.href = `https://metamask.app.link/dapp/${dappURL}`;
+  //     const host = window.location.host; // e.g. myapp.vercel.app
+  //     const path = window.location.pathname + window.location.search; // keep route/query
+  //     window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
+
+  //     return;
+  //   }
+  //   const p = new ethers.BrowserProvider(window.ethereum);
+  //   const [selectedAccount] = await p.send("eth_requestAccounts", []);
+  //   setProvider(p);
+  //   setAccount(selectedAccount);
+  // };
+
   const connectWallet = async () => {
-    if (!window?.ethereum) {
-      // Lightweight mobile deeplink to MetaMask
-      const dappURL = encodeURIComponent(window.location.href);
-      window.location.href = `https://metamask.app.link/dapp/${dappURL}`;
+    if (typeof window === "undefined") return;
+
+    // If MetaMask (or any provider) is injected, just request accounts
+    if (window.ethereum) {
+      const p = new ethers.BrowserProvider(window.ethereum);
+      const [selectedAccount] = await p.send("eth_requestAccounts", []);
+      setProvider(p);
+      setAccount(selectedAccount);
       return;
     }
-    const p = new ethers.BrowserProvider(window.ethereum);
-    const [selectedAccount] = await p.send("eth_requestAccounts", []);
-    setProvider(p);
-    setAccount(selectedAccount);
+
+    // No provider: open in MetaMask app (domain-only first)
+    if (mmLinkDomainOnly) {
+      window.location.href = mmLinkDomainOnly;
+      // Fallback to full-URL if the webview stays blank (some devices)
+      setTimeout(() => {
+        // Detect MetaMask mobile webview by UA
+        const ua = navigator.userAgent || "";
+        const inMetaMaskWebview =
+          /MetaMaskMobile/i.test(ua) || /metamask/i.test(ua);
+
+        // If we didn't end up in a MetaMask webview after 2s, try full URL
+        if (!inMetaMaskWebview && mmLinkFullURL) {
+          window.location.href = mmLinkFullURL;
+        }
+      }, 2000);
+    }
   };
 
   const fundContract = async () => {
@@ -134,7 +182,7 @@ export default function Home() {
         return;
       }
 
-      // Preflight: estimate gas via provider (v6-safe)
+      // Preflight: estimate gas via provider
       const data = contract.interface.encodeFunctionData("fund", []);
       await signer.provider.estimateGas({
         to: contractAddress,
@@ -192,6 +240,11 @@ export default function Home() {
           >
             Connect Wallet
           </button>
+        )}
+        {mmLinkDomainOnly && (
+          <a href={mmLinkDomainOnly} className="underline">
+            Open in MetaMask
+          </a>
         )}
       </div>
 
