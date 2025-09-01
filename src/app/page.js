@@ -77,60 +77,29 @@ export default function Home() {
   //     )}`
   //   );
   // }, []);
+  // function openInMetaMask(dappHref) {
+  //   // Use full URL form – more reliable on iOS/Android
+  //   const encoded = encodeURIComponent(dappHref);
+  //   const link = `https://metamask.app.link/open_url?url=${encoded}`;
+
+  //   // Optional fallback to app stores if app isn’t installed
+  //   const isIOS = /iPhone|iPad/i.test(navigator.userAgent || "");
+  //   const storeURL = isIOS
+  //     ? "https://apps.apple.com/app/metamask-blockchain-wallet/id1438144202"
+  //     : "https://play.google.com/store/apps/details?id=io.metamask";
+
+  //   const startedAt = Date.now();
+  //   window.location.replace(link);
+  //   setTimeout(() => {
+  //     if (Date.now() - startedAt < 2100) {
+  //       window.location.href = storeURL;
+  //     }
+  //   }, 1800);
+  // }
   function openInMetaMask(dappHref) {
-    // Heuristic: are we already inside the MetaMask in-app browser?
-    const ua = navigator.userAgent || "";
-    const inMM =
-      /MetaMaskMobile/i.test(ua) ||
-      /com.metamask/i.test(ua) ||
-      /metamask/i.test(ua);
-
-    if (inMM) {
-      // already inside — just reload to this URL
-      window.location.href = dappHref;
-      return;
-    }
-
-    // 1) Universal link (domain-only) — often most reliable on iOS
-    const host = window.location.host;
-    const path = window.location.pathname + window.location.search;
-    const link1 = `https://metamask.app.link/dapp/${host}${path}`;
-
-    // 2) Native scheme (some iOS builds accept this better)
-    const link2 = `metamask://dapp/${host}${path}`;
-
-    // 3) Universal link (full URL param)
-    const link3 = `https://metamask.app.link/open_url?url=${encodeURIComponent(
-      dappHref
-    )}`;
-
-    // App store fallback (if not installed)
-    const isIOS = /iPhone|iPad/i.test(ua);
-    const storeURL = isIOS
-      ? "https://apps.apple.com/app/metamask-blockchain-wallet/id1438144202"
-      : "https://play.google.com/store/apps/details?id=io.metamask";
-
-    //try the links in order with small delays.
-    // Each navigation must be user-initiated (we call this from the click handler), so we use location.href rather than window.open.
-    let tried = 0;
-    const tryNext = () => {
-      tried += 1;
-      if (tried === 1) {
-        window.location.href = link1;
-        setTimeout(tryNext, 700);
-      } else if (tried === 2) {
-        window.location.href = link2;
-        setTimeout(tryNext, 700);
-      } else if (tried === 3) {
-        window.location.href = link3;
-        setTimeout(tryNext, 900);
-      } else {
-        // Still not opened? Send to the store.
-        window.location.href = storeURL;
-      }
-    };
-
-    tryNext();
+    const encoded = encodeURIComponent(dappHref);
+    const link = `https://metamask.app.link/open_url?url=${encoded}`;
+    window.location.href = link; // or .replace(link)
   }
 
   // ---- helpers ----
