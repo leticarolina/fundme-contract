@@ -9,8 +9,6 @@ export default function Home() {
   const [ethAmount, setEthAmount] = useState("");
   const [showWindow, setShowWindow] = useState(false);
   const [showMinContribution, setShowMinContribution] = useState(false);
-  // const [mmLinkDomainOnly, setMmLinkDomainOnly] = useState(null);
-  // const [mmLinkFullURL, setMmLinkFullURL] = useState(null);
   const isClient = typeof window !== "undefined";
   const isMobile =
     isClient && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || "");
@@ -65,41 +63,39 @@ export default function Home() {
     }
   }, []);
 
-  //metamask link
-  // useEffect(() => {
-  //   if (typeof window === "undefined") return;
-  //   const host = window.location.host; // fundme-contract.vercel.app
-  //   const path = window.location.pathname + window.location.search; // keep route/query
-  //   setMmLinkDomainOnly(`https://metamask.app.link/dapp/${host}${path}`);
-  //   setMmLinkFullURL(
-  //     `https://metamask.app.link/dapp/${encodeURIComponent(
-  //       window.location.href
-  //     )}`
-  //   );
-  // }, []);
   // function openInMetaMask(dappHref) {
-  //   // Use full URL form – more reliable on iOS/Android
   //   const encoded = encodeURIComponent(dappHref);
   //   const link = `https://metamask.app.link/open_url?url=${encoded}`;
-
-  //   // Optional fallback to app stores if app isn’t installed
-  //   const isIOS = /iPhone|iPad/i.test(navigator.userAgent || "");
-  //   const storeURL = isIOS
-  //     ? "https://apps.apple.com/app/metamask-blockchain-wallet/id1438144202"
-  //     : "https://play.google.com/store/apps/details?id=io.metamask";
-
-  //   const startedAt = Date.now();
-  //   window.location.replace(link);
-  //   setTimeout(() => {
-  //     if (Date.now() - startedAt < 2100) {
-  //       window.location.href = storeURL;
-  //     }
-  //   }, 1800);
+  //   window.location.href = link; // or .replace(link)
   // }
+  function inMetaMaskWebview() {
+    const ua = navigator.userAgent || "";
+    return /MetaMaskMobile/i.test(ua) || /metamask/i.test(ua);
+  }
+
   function openInMetaMask(dappHref) {
-    const encoded = encodeURIComponent(dappHref);
-    const link = `https://metamask.app.link/open_url?url=${encoded}`;
-    window.location.href = link; // or .replace(link)
+    // If we're already in the MetaMask in-app browser, do nothing.
+    if (inMetaMaskWebview()) return;
+
+    // Prefer custom scheme first (most reliable on iOS).
+    const custom = `metamask://dapp?url=${encodeURIComponent(dappHref)}`;
+
+    // Use the *domain+path* form for the universal link fallback (recommended by MetaMask).
+    // IMPORTANT: no "https://" prefix here.
+    const host = window.location.host; // e.g. fundme-contract.vercel.app
+    const path = window.location.pathname + window.location.search; // keep route/query
+    const universal = `https://metamask.app.link/dapp/${host}${path}`;
+
+    // 1) Try custom scheme
+    const start = Date.now();
+    window.location.assign(custom);
+
+    // 2) If the tab is still visible after ~800ms, custom scheme likely didn’t open → try universal link
+    setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        window.location.assign(universal);
+      }
+    }, 800);
   }
 
   // ---- helpers ----
@@ -156,36 +152,6 @@ export default function Home() {
 
   // ---- actions ----
 
-  // const connectWallet = async () => {
-  //   if (typeof window === "undefined") return;
-
-  //   // If MetaMask (or any provider) is injected, just request accounts
-  //   if (window.ethereum) {
-  //     const p = new ethers.BrowserProvider(window.ethereum);
-  //     const [selectedAccount] = await p.send("eth_requestAccounts", []);
-  //     setProvider(p);
-  //     setAccount(selectedAccount);
-  //     return;
-  //   }
-
-  //   // No provider: open in MetaMask app (domain-only first)
-  //   if (mmLinkDomainOnly) {
-  //     window.location.href = mmLinkDomainOnly;
-  //     // Fallback to full-URL if the webview stays blank (some devices)
-  //     setTimeout(() => {
-  //       // Detect MetaMask mobile webview by UA
-  //       const ua = navigator.userAgent || "";
-  //       const inMetaMaskWebview =
-  //         /MetaMaskMobile/i.test(ua) || /metamask/i.test(ua);
-
-  //       // If we didn't end up in a MetaMask webview after 2s, try full URL
-  //       if (!inMetaMaskWebview && mmLinkFullURL) {
-  //         window.location.href = mmLinkFullURL;
-  //       }
-  //     }, 2000);
-  //   }
-  // };
-
   const onCtaClick = async () => {
     if (account) return; // already connected
 
@@ -201,14 +167,8 @@ export default function Home() {
     if (isMobile) {
       // Open this same page inside MetaMask in-app browser
       openInMetaMask(window.location.href);
-    } else {
-      // Desktop + no wallet
-      window.open(
-        "https://metamask.io/download/",
-        "_blank",
-        "noopener,noreferrer"
-      );
     }
+    return;
   };
 
   const fundContract = async () => {
@@ -274,25 +234,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#483460] bg-cover bg-center flex flex-col items-center justify-center text-[#EEEAF6] px-4 md:px-0 overflow-hidden">
       {/* Connect Wallet Button Positioned at the Top-Right */}
-      {/* <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full gap-4">
-        {account ? (
-          <button className="bg-[#00B354] text-white font-semibold py-3 px-6 rounded-md shadow-lg hover:bg-green-600 transition">
-            {account.slice(0, 10)}...{account.slice(-8)}
-          </button>
-        ) : (
-          <button
-            onClick={connectWallet}
-            className="bg-white/20 text-white font-semibold py-3 px-6 rounded-md shadow-lg backdrop-blur-md hover:bg-white/30 transition"
-          >
-            Connect Metamask
-          </button>
-        )}
-        {mmLinkDomainOnly && /Mobi|Android/i.test(navigator.userAgent) && (
-          <button className="bg-white/20 text-white font-semibold py-3 px-6 rounded-md shadow-lg backdrop-blur-md hover:bg-white/30 transition">
-            <a href={mmLinkDomainOnly}>Open in MetaMask</a>
-          </button>
-        )}
-      </div> */}
       <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full">
         <button
           onClick={onCtaClick}
