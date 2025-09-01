@@ -9,17 +9,41 @@ export default function Home() {
   const [ethAmount, setEthAmount] = useState("");
   const [showWindow, setShowWindow] = useState(false);
   const [showMinContribution, setShowMinContribution] = useState(false);
-  const isClient = typeof window !== "undefined";
-  const isMobile =
-    isClient && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || "");
-  const hasInjected = isClient && !!window.ethereum;
+  // const isClient = typeof window !== "undefined";
+  // const isMobile =
+  //   isClient && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || "");
+  // const hasInjected = isClient && !!window.ethereum;
+  // const [copied, setCopied] = useState(false);
+
+  // const ctaLabel = account
+  //   ? `${account.slice(0, 10)}...${account.slice(-8)}`
+  //   : hasInjected
+  //   ? "Connect MetaMask"
+  //   : isMobile
+  //   ? copied
+  //     ? "Copied ✓"
+  //     : "Copy dApp Link"
+  //   : "Install MetaMask";
+  // SSR-safe env state + CTA label
+  const [env, setEnv] = useState({ isMobile: false, hasInjected: false });
+  const [copied, setCopied] = useState(false);
+
+  // after mount, detect environment once
+  useEffect(() => {
+    setEnv({
+      isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || ""),
+      hasInjected: typeof window !== "undefined" && !!window.ethereum,
+    });
+  }, []);
 
   const ctaLabel = account
     ? `${account.slice(0, 10)}...${account.slice(-8)}`
-    : hasInjected
+    : env.hasInjected
     ? "Connect MetaMask"
-    : isMobile
-    ? "Open in MetaMask"
+    : env.isMobile
+    ? copied
+      ? "Copied ✓"
+      : "Copy dApp Link"
     : "Install MetaMask";
 
   // ---- contract info ----
@@ -63,43 +87,7 @@ export default function Home() {
     }
   }, []);
 
-  // function openInMetaMask(dappHref) {
-  //   const encoded = encodeURIComponent(dappHref);
-  //   const link = `https://metamask.app.link/open_url?url=${encoded}`;
-  //   window.location.href = link; // or .replace(link)
-  // }
-  function inMetaMaskWebview() {
-    const ua = navigator.userAgent || "";
-    return /MetaMaskMobile/i.test(ua) || /metamask/i.test(ua);
-  }
-
-  function openInMetaMask(dappHref) {
-    // If we're already in the MetaMask in-app browser, do nothing.
-    if (inMetaMaskWebview()) return;
-
-    // Prefer custom scheme first (most reliable on iOS).
-    const custom = `metamask://dapp?url=${encodeURIComponent(dappHref)}`;
-
-    // Use the *domain+path* form for the universal link fallback (recommended by MetaMask).
-    // IMPORTANT: no "https://" prefix here.
-    const host = window.location.host; // e.g. fundme-contract.vercel.app
-    const path = window.location.pathname + window.location.search; // keep route/query
-    const universal = `https://metamask.app.link/dapp/${host}${path}`;
-
-    // 1) Try custom scheme
-    const start = Date.now();
-    window.location.assign(custom);
-
-    // 2) If the tab is still visible after ~800ms, custom scheme likely didn’t open → try universal link
-    setTimeout(() => {
-      if (document.visibilityState === "visible") {
-        window.location.assign(universal);
-      }
-    }, 800);
-  }
-
   // ---- helpers ----
-  // const REQUIRED_CHAIN_ID = 11155111n; // Sepolia
   const REQUIRED_CHAIN_ID = 42161n; // Arbitrum One
 
   const refreshBalance = async () => {
@@ -150,13 +138,36 @@ export default function Home() {
     };
   }, [contractRead, readProvider, contractAddress]);
 
+  //copy helper
+  async function copyDappLink() {
+    const url = window.location.href;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // fallback UI if copy fails
+      alert("Copy failed. Long-press the address bar to copy this page URL.");
+    }
+  }
+
   // ---- actions ----
 
   const onCtaClick = async () => {
-    if (account) return; // already connected
+    if (account) return;
 
-    if (hasInjected) {
-      // Normal connect flow
+    if (env.hasInjected) {
       const p = new ethers.BrowserProvider(window.ethereum);
       const [selectedAccount] = await p.send("eth_requestAccounts", []);
       setProvider(p);
@@ -164,11 +175,17 @@ export default function Home() {
       return;
     }
 
-    if (isMobile) {
-      // Open this same page inside MetaMask in-app browser
-      openInMetaMask(window.location.href);
+    if (env.isMobile) {
+      await copyDappLink();
+      return;
     }
-    return;
+
+    // Desktop + no wallet
+    window.open(
+      "https://metamask.io/download/",
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   const fundContract = async () => {
@@ -234,12 +251,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#483460] bg-cover bg-center flex flex-col items-center justify-center text-[#EEEAF6] px-4 md:px-0 overflow-hidden">
       {/* Connect Wallet Button Positioned at the Top-Right */}
+      {/* Top-right CTA */}
       <div className="absolute md:top-5 md:right-5 top-0 left-0 flex md:justify-end justify-center mt-4 md:mt-0 px-4 w-full">
         <button
           onClick={onCtaClick}
           className="bg-white/20 text-white font-semibold py-3 px-6 rounded-md shadow-lg backdrop-blur-md hover:bg-white/30 transition"
         >
-          {ctaLabel}
+          <span suppressHydrationWarning>{ctaLabel}</span>
         </button>
       </div>
 
@@ -260,10 +278,7 @@ export default function Home() {
         If you’d like to try it out and support my work, it's possible directly
         through this <span className="font-semibold">dApp.</span>
       </p>
-      {/* <p className="text-lg text-gray-300 font-semibold text-center mb-4">
-        Use <span className="text-green-600">Arbitrum Blockchain</span> to
-        interact
-      </p> */}
+
       <p className="text-lg text-gray-300 font-semibold text-center mb-4">
         Please use <span className="text-[#52A9ED]">Arbitrum One</span> to
         interact,&nbsp;
