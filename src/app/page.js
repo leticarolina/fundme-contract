@@ -42,8 +42,8 @@ export default function Home() {
     ? "Connect MetaMask"
     : env.isMobile
     ? copied
-      ? "Copied ✓"
-      : "Copy dApp Link"
+      ? "Copied ✓ Paste Link on Metamask App"
+      : "Copy dApp Link for Metamask"
     : "Install MetaMask";
 
   // ---- contract info ----
