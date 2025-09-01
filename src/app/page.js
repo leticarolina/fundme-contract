@@ -152,7 +152,7 @@ export default function Home() {
   const fundContract = async () => {
     try {
       if (!ethAmount || isNaN(ethAmount) || parseFloat(ethAmount) <= 0) {
-        alert("Please enter a valid amount of ETH!");
+        alert("Please first connect wallet and insert amount.");
         return;
       }
       const { signer, contract } = await getSignerAndContract();
@@ -289,7 +289,7 @@ export default function Home() {
       {/* Show minimum contribution message*/}
       {showMinContribution && (
         <p className="text-red-300 text-sm mt-2  ">
-          * Minimum contribution: 5USD worth of ETH.
+          * Minimum contribution: 0.002ETH around 5USD.
         </p>
       )}
 
