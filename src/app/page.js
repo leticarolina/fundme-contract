@@ -155,7 +155,7 @@ export default function Home() {
         document.body.removeChild(ta);
       }
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), 5000);
     } catch {
       // fallback UI if copy fails
       alert("Copy failed. Long-press the address bar to copy this page URL.");
